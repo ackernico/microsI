@@ -1,0 +1,131 @@
+//Nicolas Acker de Souza Nº21 (4312)
+#include "stm32f4xx.h"
+
+int pressed = 0;
+int startIn;
+int stopIn;
+int contaPiscada = 0;
+int verifica = 0;
+int contagem = 0;
+
+int ledParado[] = {0b00000001,
+		0b00000011,
+		0b00000111,
+		0b00001111,
+		0b00011111,
+		0b00111111,
+		0b01111111,
+		0b11111111
+};
+int matrizled[] = {0b00000001,
+		0b00000010,
+		0b00000100,
+		0b00001000,
+		0b00010000,
+		0b00100000,
+		0b01000000,
+		0b10000000
+};
+
+void ligaLed(int value){
+	GPIOC->ODR |= matrizled[value];
+}
+
+void stopContagem(){
+	if(pressed == 1 || !stopIn){
+		pressed = 1;
+
+		TIM11->CR1 = 0;
+
+		while(pressed){
+			if(TIM10->SR & 0x1 && contaPiscada != 0){
+				GPIOC->ODR ^= ledParado[contaPiscada-1];
+
+				TIM10->SR &= ~0x1;
+			}
+		}
+	}
+}
+
+int main(void)
+{
+	GPIOA->MODER |= 0x28000000;
+	RCC->AHB1ENR = 0x87;
+	RCC->APB2ENR |= 1 << 17;
+	RCC->APB2ENR |= 1 << 18;
+	TIM10->CR1 = 0b1;
+	TIM10->ARR = 999;
+	TIM10->PSC = 5332;
+	TIM11->CR1 |= 0b1;
+
+	TIM11->ARR = 999;
+	TIM11->PSC = 15999;
+	GPIOC->MODER |= 0b0101010101010101;
+	GPIOB->MODER &= ~0b1010;
+	GPIOA->MODER |= 0x400;
+
+	GPIOB->PUPDR |= 0b0101;
+
+	while (1)
+	{
+		startIn = GPIOB->IDR & 0b10;
+		stopIn  = GPIOB->IDR & 0b01;
+
+		if(!startIn || contagem == 1){
+			contagem = 1;
+
+			if(verifica == 1){
+				GPIOC->ODR &= 0b0;
+
+
+				verifica = 0;
+			}
+
+			TIM11->PSC = 10665;
+			stopContagem();
+
+			if(TIM11->SR & 0x1){
+				switch(contaPiscada){
+				case 0:
+					ligaLed(contaPiscada);
+					break;
+				case 1:
+					ligaLed(contaPiscada);
+					break;
+				case 2:
+					ligaLed(contaPiscada);
+					break;
+				case 3:
+					ligaLed(contaPiscada);
+					break;
+				case 4:
+					ligaLed(contaPiscada);
+					break;
+				case 5:
+					ligaLed(contaPiscada);
+					break;
+				case 6:
+					ligaLed(contaPiscada);
+					break;
+				case 7:
+
+					ligaLed(contaPiscada);
+					break;
+				case 8:
+					GPIOA->ODR |= 0x20;
+					break;
+				}
+				contaPiscada++;
+				TIM11->SR &= ~0b1;
+			}
+		}
+		else if(contagem == 0){
+			if(TIM11->SR & 0x1){
+				GPIOC->ODR ^= 0b11111111;
+
+				verifica = 1;
+				TIM11->SR &= ~0b1;
+			}
+		}
+	}
+}

@@ -1,0 +1,40 @@
+/*
+  Elabore um programa que gere os sons de, ao menos, os 7 tons
+  maiores. As notas são acionadas através de botões e reproduzidas em um
+  alto-falante.
+
+ */
+
+#include "stm32f4xx.h"
+
+
+
+int main(void)
+{
+  RCC->AHB1ENR = 0x87;
+
+  GPIOA->MODER |= 0x28000000;
+  GPIOB->MODER |= 0b01;
+
+  GPIOC->PUPDR |= 0b01010101;
+
+  int botao0;
+  int botao1;
+  int botao2;
+  int botao3;
+
+	while (1)
+  {
+	botao0 = GPIOC->IDR & 0b0001;
+	botao1 = GPIOC->IDR & 0b0010;
+	botao2 = GPIOC->IDR & 0b0100;
+	botao3 = GPIOC->IDR & 0b1000;
+
+	if(!botao0){
+		GPIOB->ODR |= 0b1;
+	}
+	else{
+		GPIOB->ODR &= 0b0;
+	}
+  }
+}

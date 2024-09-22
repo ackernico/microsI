@@ -1,0 +1,31 @@
+GPIO MODER
+
+Cada pino corresponde a um modo de operação. Ele é definido por um par de bits:
+
+00 - Entrada digital
+01 - Saída digital
+10 - Função digital alternativa
+11 - Entrada/Saída analógica
+
+PUPDR
+
+Define um resitor de pull up ou pull down. Funciona do mesmo jeito que o MODER
+
+00 - Nada
+01 - Pull up
+10 - Pull down
+11 - Reservado (Não usar)
+
+
+IMPORTANTE:
+
+- O ARM aguenta até 120mA
+- Cada porta pode ter 20mA
+- Usar |= quando quiser definir um bit como 1
+- Usar &= quando quiser definir um bit como 0
+- As portas do ARM são mantidas em 0 por padrão para não serem ativadas acidentalmente
+- Pino do botão do usuário é PC13
+- Pino do LED LD2 é PA5
+- PA13 e PA14 precisam ser configurados como função alternativa para habilitar o debu‪gger
+- Sempre ativar o clock das portas GPIO -> RCC->AHB1ENR = 0x87
+- Sempre Habilitar os pinos PA13 e PA14 como função alternativa

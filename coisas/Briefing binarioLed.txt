@@ -1,0 +1,28 @@
+1- Conectar três chaves e sete leds no microcontrolador. Ligar o número de leds correspondentes ao número binário presente nas chaves.
+
+PB0 - Led 1
+PB1 - Led 2
+PB2 - Led 3 
+PB3 - Led 4
+PB4 - Led 5 
+PB5 - Led 6 
+PB6 - Led 7
+PB7 - Led 8
+
+PC0 - Chave 1 (BIT D)
+PC1 - Chave 2 (BIT C)
+PC2 - Chave 3 (BIT B)
+
+1) 0001 0101 
+2) 0101 0101 0101 0101 
+
+1) GPIOC->PUPDR |= 0x15;   //Definir pull up nas chaves
+2) GPIOB->MODER |= 0x5555; // Definir pinos de saída (LED)
+
+
+
+
+int bitsLEd[7] = {0b0000000, 0b1000000, 0b1100000
+
+
+gpioB ->IDR = bitsLEd[GPIOC->ODR]

@@ -1,0 +1,37 @@
+/*
+ * Monte dois conjuntos de 3 leds, um verde, um amarelo e um vermelho, nas
+posições de um semáforo (se não tiveres as cores, não importa.).
+Desenvolva um programa de controle para este semáforo de dois tempos. O
+tempo de verde/vermelho deve ser de 700 ms e o tempo de amarelo aceso é
+200ms. Faça a sequência Vd -> Vd/Am -> Vm
+Os exercícios a seguir utilizam um conjunto de 8 leds montados em linha.
+Pode usar um arranjo de leds ou até mesmo um display..
+ */
+#include "stm32f4xx.h"
+
+void delay(int t){
+	for(int i=0 ; i<t ; i++){
+		while((TIM10->SR & 0x1) == 0);
+	}
+}
+
+int main(void)
+{
+
+	RCC->AHB1ENR = 0x87;
+	RCC->APB2ENR = 1 << 17;
+	RCC->APB1ENR = 0b1;
+
+	GPIOC->MODER |= 0b010101;
+	GPIOA->MODER |= 0x400;
+
+	TIM10->CR1 |= 0b1;
+	TIM10->ARR = 999;
+	TIM10->PSC = 1599;
+
+	while (1){
+		if(TIM10->SR&0x1){
+			GPIOA->ODR |= 0x20;
+		}
+   }
+}

@@ -1,0 +1,81 @@
+/*
+  Elabore um programa que gere os sons de, ao menos, os 7 tons
+  maiores. As notas são acionadas através de botões e reproduzidas em um
+  alto-falante.
+
+  Dó  (1) - 261.63
+  Ré  (2) - 293.66
+  Mi  (3) - 329.63
+  Fá  (4) - 349.23
+  Sol (5) - 392.00
+  Lá  (6) - 440.00
+  Si  (7) - 493.88
+
+ */
+
+#include "stm32f4xx.h"
+
+
+
+int main(void)
+{
+  RCC->AHB1ENR = 0x87;
+  RCC->APB2ENR = 1 << 17;
+
+  GPIOA->MODER |= 0x28000000;
+  GPIOB->MODER |= 0b01;
+
+  GPIOC->PUPDR |= 0b01010101;
+
+  TIM10->CR1 |= 0b1;
+  TIM10->ARR = 99;
+  TIM10->PSC = 548;
+
+  int botao0;
+  int botao1;
+  int botao2;
+  int botao3;
+
+	while (1)
+  {
+	botao0 = GPIOC->IDR & 0b0001;
+	botao1 = GPIOC->IDR & 0b0010;
+	botao2 = GPIOC->IDR & 0b0100;
+	botao3 = GPIOC->IDR & 0b1000;
+
+	if(TIM10->SR&0x1){
+		if(!botao0 && botao1 && botao2 && botao3){
+			GPIOB->ODR |= 0b1; //Dó
+		}
+		else if(botao0 && !botao1 && botao2 && botao3){
+			TIM10->PSC = 6110; // Ré
+			GPIOB->ODR |= 0b1;
+		}
+		else if(!botao0 && !botao1 && botao2 && botao3){
+			TIM10->PSC = 544;
+			GPIOB->ODR |= 0b1;
+		}
+		else if(botao0 && botao1 && !botao2 && botao3){
+			TIM10->PSC = 485;
+			GPIOB->ODR |= 0b1;
+		}
+		else if(!botao0 && botao1 && !botao2 && botao3){
+			TIM10->PSC = 408;
+			GPIOB->ODR |= 0b1;
+		}
+		else if(botao0 && !botao1 && !botao2 && botao3){
+			TIM10->PSC = 363;
+			GPIOB->ODR |= 0b1;
+		}
+		else if(!botao0 && !botao1 && !botao2 && botao3){
+			TIM10->PSC = 323;
+			GPIOB->ODR |= 0b1;
+		}
+		else{
+			GPIOB->ODR &= 0b0;
+		}
+
+		TIM10->SR&= 0b0;
+	}
+  }
+}

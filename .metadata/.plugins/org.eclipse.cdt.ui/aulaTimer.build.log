@@ -1,0 +1,10 @@
+09:14:02 **** Rebuild of configuration Debug for project aulaTimer ****
+Info: Internal Builder is used for build
+arm-atollic-eabi-gcc -c ..\main.c -std=gnu11 -O0 -g -fstack-usage -Wall -specs=nano.specs -o main.o 
+..\main.c:9:23: fatal error: stm32f4xx.h: No such file or directory
+ #include "stm32f4xx.h"
+                       ^
+compilation terminated.
+
+09:14:02 Build Finished (took 167ms)
+

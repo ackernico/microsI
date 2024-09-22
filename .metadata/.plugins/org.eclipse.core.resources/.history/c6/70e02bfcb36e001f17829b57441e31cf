@@ -1,0 +1,58 @@
+/*
+ * Exercício 5 :
+  Acione os leds em sequência, começando de uma ponta da linha e
+  percorrendo até a outra ponta, acionando somente um led. O led aceso deve
+  “percorrer” a extensão da linha, indo de uma extremidade a outra e
+  retornando. Seguir com este movimento indefinidamente.
+
+  Exercício 6 :
+  Acione os leds em sequência, começando de uma ponta da linha e
+  percorrendo até a outra ponta, acionando o proximo led, mantendo o anterior
+  acionado. Ao preencher a linha, retornar apagando os leds.
+
+  Exercício 7 :
+  Crie (invente, inove, seja criativo) um efeito visual na linha de leds, a exemplo
+  dos exercícios anteriores.
+
+  Exercício 8 :
+  Utilizando duas chaves conectadas ao kit, junte os codigos 5 a 7,
+  selecionando o efeito através das chaves.
+ */
+
+#include "stm32f4xx.h"
+
+int main(void)
+{
+  RCC->AHB1ENR = 0x87;
+  RCC->APB2ENR = 1 << 17;
+
+  GPIOA->MODER |= 0x28000400;
+  GPIOC->MODER |= 0b0101010101010101;
+  TIM10->CR1 = 0b1;
+  TIM10->PSC = 7999;
+  TIM10->ARR = 999;
+
+  int led[] = {  0b00000001, //Led1
+  	  	  	  	 0b00000010, //Led2
+  	  	  	  	 0b00000100, //Led3
+  	  	  	  	 0b00001000, //Led4
+  	  	  	  	 0b00010000, //Led5
+  	  	  	  	 0b00100000, //Led6
+  	  	  	  	 0b01000000, //Led7
+  	  	  	  	 0b10000000};//Led8
+  int cont;
+
+	while (1)
+  {
+	if(TIM10->SR & 0x1){
+		cont++;
+		GPIOC->ODR ^= led[cont];
+
+		if(cont == 7){
+			cont = 0;
+		}
+
+		TIM10->SR &= 0b0;
+	}
+  }
+}

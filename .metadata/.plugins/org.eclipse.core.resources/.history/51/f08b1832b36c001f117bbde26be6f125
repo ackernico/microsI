@@ -1,0 +1,61 @@
+#include "stm32f4xx.h"
+
+void delay(int t) {
+    for (int i = 0; i < t; i++) {
+        while ((TIM10->SR & 0x1) == 0);  // Espera o flag de update
+        TIM10->SR &= ~0x1;  // Limpa o flag de update
+    }
+}
+
+int main(void) {
+    int cont = 0;
+
+    // Habilitar os clocks para GPIOA, GPIOC, TIM2 e TIM10
+    RCC->AHB1ENR |= 0x87;    // Habilitar clock para GPIOA e GPIOC
+    RCC->APB2ENR |= (1 << 17);  // Habilitar clock para TIM10
+    RCC->APB1ENR |= (1 << 0);   // Habilitar clock para TIM2
+
+    // Configurar os pinos de PC0, PC1, PC2 como saída (semáforo)
+    GPIOC->MODER |= 0b010101;  // Configurar PC0, PC1, PC2 como saída
+
+    // Configurar PA5 como saída para LED de teste (opcional)
+    GPIOA->MODER |= 0x400;
+
+    // Configurar TIM10 para gerar um delay (prescaler e ARR ajustados)
+    TIM10->PSC = 11199;  // Prescaler para 1 ms (assumindo clock de 16 MHz)
+    TIM10->ARR = 999;    // Contagem até 999 ms
+    TIM10->CR1 |= 0b1;   // Habilitar o TIM10
+
+    // Configurar TIM2 para controlar o tempo do semáforo
+    TIM2->PSC = 3199;    // Prescaler ajustado para o tempo desejado
+    TIM2->ARR = 999;     // Contagem até 999 ms
+    TIM2->CR1 |= 0b1;    // Habilitar o TIM2
+
+    while (1) {
+        // Controle do LED verde
+        if (TIM10->SR & 0x1) {
+            GPIOC->ODR &= ~0b111;  // Apagar todos os LEDs
+            GPIOC->ODR ^= 0b001;   // Acender o LED verde (PC0)
+            delay(700);            // Aguardar 700 ms
+        }
+
+        // Controle do LED amarelo após o verde
+        if (TIM2->SR & 0x1 && (GPIOC->ODR & 0b001)) {
+            cont++;
+            if (cont > 2) {
+                GPIOC->ODR &= ~0b111;  // Apagar todos os LEDs
+                GPIOC->ODR ^= 0b010;   // Acender o LED amarelo (PC1)
+                delay(200);            // Aguardar 200 ms
+                cont = 0;
+            }
+            TIM2->SR &= ~0b1;  // Limpar flag de atualização
+        }
+
+        // Controle do LED vermelho após o amarelo
+        if (cont == 0) {
+            GPIOC->ODR &= ~0b111;  // Apagar todos os LEDs
+            GPIOC->ODR ^= 0b100;   // Acender o LED vermelho (PC2)
+            delay(700);            // Aguardar 700 ms
+        }
+    }
+}
